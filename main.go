@@ -1,5 +1,36 @@
 package main
 
+import (
+	"box-crawler/database"
+	"box-crawler/scrappers"
+	"box-crawler/server"
+	"fmt"
+	"log"
+	"time"
+
+	"github.com/go-co-op/gocron"
+)
+
+func main() {
+	db, err := database.New("mongodb://root:example@localhost:27017/default_db?authSource=admin")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// initializing cron jobs
+	//      get data
+	//      process data and clean up data
+	//      store data
+	scheduler := gocron.NewScheduler(time.UTC)
+	scheduler.Every(1).Day().Do(scrappers.ScrapeFightResults, db)
+
+	router := server.New(db)
+	router.RegisterRoutes()
+	if err := router.Start(); err != nil {
+		log.Fatal(err)
+	}
+}
+
 /*
 
 func main() {
@@ -44,9 +75,6 @@ func main() {
 
 	// server := echo.New()
 	// register routes
-	// initializing cron jobs
-	//      get data
-	//      process data and clean up data
-	//      store data
+
 }
 */
