@@ -1,11 +1,11 @@
-FROM base_image
+FROM golang:1.17.7
 
-FROM alpine
+WORKDIR /usr/src/app
 
-FROM GO:1.17.7-alpine3.15
-COPY src .
-COPY package*.json .
-RUN npm install
-CMD npm run start
+COPY go.mod go.sum ./
+RUN go mod download && go mod verify
 
+COPY . .
+RUN go build -v -o /usr/local/bin/app ./...
 
+CMD ["app"]
