@@ -1,12 +1,12 @@
 package entities
 
 type Fight_Results struct {
-	Date {}
+	Date             interface{}
 	Participant1Name string
 	Participant2Name string
-	FightInfo {}
-	Event-Place  Event_Place 
-	UnderCard_Events {}
+	FightInfo        interface{}
+	EventPlace       Event_Place
+	UnderCard_Events interface{}
 }
 
 type Event_Place struct {

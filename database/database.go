@@ -28,8 +28,8 @@ func New(dsn string) (*mongodb, error) {
 	}, err
 }
 
-func (db mongodb) InsertUpcomingFight(entities.Fight) {
-
+func (db mongodb) InsertUpcomingFight(fihgt entities.Fight) {
+	db.db.Database("default_db").Collection("upcoming_fights").UpdateOne(context.TODO(), fihgt, options.Update().SetUpsert(true))
 }
 func (db mongodb) GetUpcomingFights() {}
 func (db mongodb) GetUpcomingFight()  {}

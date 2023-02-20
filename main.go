@@ -3,13 +3,11 @@ package main
 import (
 	"box-crawler/database"
 	"box-crawler/scrappers"
-	"box-crawler/server"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/go-co-op/gocron"
-	"github.com/gocolly/colly/v2"
+	"github.com/gocolly/colly"
 )
 
 func main() {
@@ -24,37 +22,31 @@ func main() {
 	//      store data
 
 	// for gocolly
-c := colly.NewCollector(
-	colly.AllowedDomains("box.live")
-)
+	c := colly.NewCollector(
+		colly.AllowedDomains("box.live"),
+		colly.CacheDir("./box-live-cache"),
+	)
 
-c.OnHTML("upcoming-fights-schedule","fight-results", func(e *colly.HTMLElement){
-	metaTags := e.DOM.ParentsUntil("~").Find("meta")
-	metaTags.Each(func(_ int , s *goquery.Selection){
+	// c.OnHTML("upcoming-fights-schedule", "fight-results", func(e *colly.HTMLElement) {
+	// 	metaTags := e.DOM.ParentsUntil("~").Find("meta")
+	// 	metaTags.Each(func(_ int, s *goquery.Selection) {
 
+	// 	})
+	// })
+
+	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
+		link := e.Attr("href")
+		c.Visit(e.Request.AbsoluteURL(link))
 	})
-})
 
+	c.OnRequest(func(r *colly.Request) {
+		fmt.Println("Crawl on page", r.URL.String())
+	})
 
-c.OnHTML("a[href]", func(e *colly.HTMLElement){
-	link := e.Attw("href")
-	c.Visit(r.Request.AbsouterURL(link))
-})
+	c.Visit("https://box.live")
 
-c.OnRequest(func(r *colly.Request){
-	fmt.Println("Crawl on page", r.URL.String())
-})
-
-c.Visit("https://box.live")
-
-        scheduler := gocron.NewScheduler(time.UTC)
-		scheduler.Every(3600).Second().Do(scrappers.ScrapeFightResults, db)
-
-
-
-
-
-
+	scheduler := gocron.NewScheduler(time.UTC)
+	scheduler.Every(3600).Second().Do(scrappers.ScrapeFightResults, db)
 
 	/*
 		c := colly.NewCollector(
