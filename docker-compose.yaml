@@ -8,3 +8,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+  app:
+    build: .
+    port:
+     - 8080:8080 
