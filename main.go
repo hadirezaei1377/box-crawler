@@ -16,6 +16,30 @@ func main() {
 		fmt.Println(err)
 	}
 
+	fightsCollection := client.Database("testing").Collection("fights")
+	fight := bson.D{{"fight-results", "results"}, {"upcoming-fights", "upcoming-fights"}}
+	result, err := fightsCollection.InsertOne(context.TODO(), fight)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(result.InsertedID)
+
+	fights := []interface{}{
+		bson.D{{"fullName", "User 2"}, {"age", 25}},
+		bson.D{{"fullName", "User 3"}, {"age", 20}},
+		bson.D{{"fullName", "User 4"}, {"age", 28}},
+	}
+
+	results, err := fightsCollection.InsertMany(context.TODO(), fights)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(results.InsertedIDs)
+
 	c := colly.NewCollector(
 		colly.AllowedDomains("box.live"),
 		colly.CacheDir("./box-live-cache"),
