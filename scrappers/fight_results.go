@@ -3,12 +3,13 @@ package scrappers
 import (
 	"box-crawler/database"
 	"box-crawler/entities"
+	"net/http"
 )
 
 func ScrapeFightResults(db database.Database) {
-	// Get data
-	// Extract correct data
+
+	http.Get("https://box.live/fight-results")
 
 	fight := entities.Fight{}
-	db.InsertUpcomingFight(fight)
+	db.UpsertFightResults(fight)
 }

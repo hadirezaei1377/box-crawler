@@ -30,7 +30,7 @@ func main() {
 		fmt.Println("Crawl on page", r.URL.String())
 	})
 
-	c.Visit("https://box.live")
+	c.Visit("https://box.live/upcoming-fights-schedule")
 
 	scheduler := gocron.NewScheduler(time.UTC)
 	scheduler.Every(3600).Second().Do(scrappers.ScrapeFightResults, db)
