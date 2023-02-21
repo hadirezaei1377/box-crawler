@@ -16,30 +16,6 @@ func main() {
 		fmt.Println(err)
 	}
 
-	fightsCollection := client.Database("testing").Collection("fights")
-	fight := bson.D{{"fight-results", "results"}, {"upcoming-fights", "upcoming-fights"}}
-	result, err := fightsCollection.InsertOne(context.TODO(), fight)
-
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(result.InsertedID)
-
-	fights := []interface{}{
-		bson.D{{"fullName", "User 2"}, {"age", 25}},
-		bson.D{{"fullName", "User 3"}, {"age", 20}},
-		bson.D{{"fullName", "User 4"}, {"age", 28}},
-	}
-
-	results, err := fightsCollection.InsertMany(context.TODO(), fights)
-
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(results.InsertedIDs)
-
 	c := colly.NewCollector(
 		colly.AllowedDomains("box.live"),
 		colly.CacheDir("./box-live-cache"),
@@ -54,11 +30,29 @@ func main() {
 		fmt.Println("Crawl on page", r.URL.String())
 	})
 
+	c.OnHTML("#this-week", func(container *colly.HTMLElement) {
+		container.ForEach("div", func(i int, h *colly.HTMLElement) {
+			FightDate := h.ChildText("h3.site-content__section__subtitle:nth-child()")
+			FighterName1 := h.ChildText("header:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(2) > span:nth-child(1)")
+			FighterName2 := h.ChildText("header:nth-child(1) > div:nth-child(3) > div:nth-child(3) > div:nth-child(1) > span:nth-child(2)")
+			FighterScore1 := h.ChildText("header:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(2)")
+			FighterScore2 := h.ChildText("header:nth-child(1) > div:nth-child(3) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1)")
+			FightInfo := h.ChildText("div.schedule-card:nth-child(7) > header:nth-child(1) > div:nth-child(5) > a:nth-child(1)")
+			MatchLocation := h.ChildText("div:nth-child(2) > p:nth-child(1)")
+			ScoreCards := h.ChildText("div:nth-child(2) > p:nth-child(2)")
+
+			db.InsertUpcomingFight(map[string]string{
+				"fihgt_date":   FightDate,
+				"fighter_name": FighterName1,
+			})
+		})
+
+	})
+
 	c.Visit("https://box.live/upcoming-fights-schedule")
 
 	scheduler := gocron.NewScheduler(time.UTC)
 	scheduler.Every(3600).Second().Do(scrappers.ScrapeFightResults, db)
-
 }
 
 // c.OnHTML("upcoming-fights-schedule", "fight-results", func(e *colly.HTMLElement) {
