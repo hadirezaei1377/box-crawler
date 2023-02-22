@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	_FR_FightDate      = ""
-	_FR_FightDateAlter = ""
+	_FR_FightDate      = "h3.site-content__section__subtitle:nth-child(1)"
+	_FR_FightDateAlter = "h3.site-content__section__subtitle:nth-child(6)"
 	_FR_FighterName1   = "header:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(2) > span:nth-child(1)"
 	_FR_FighterName2   = "header:nth-child(1) > div:nth-child(3) > div:nth-child(3) > div:nth-child(1) > span:nth-child(2)"
 	_FighterScore1     = "header:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(2)"

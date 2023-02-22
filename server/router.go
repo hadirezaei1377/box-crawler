@@ -21,7 +21,7 @@ func New(db database.Database) *server {
 
 func (srv *server) RegisterRoutes() {
 	srv.echo.GET("/upcoming_fights", srv.GetUpcomingFights())
-	srv.echo.GET("/fight_results", srv.GetUpcomingFights())
+	srv.echo.GET("/fight_results", srv.GetFightResults())
 }
 
 func (srv *server) GetUpcomingFights() func(c echo.Context) error {
@@ -31,6 +31,16 @@ func (srv *server) GetUpcomingFights() func(c echo.Context) error {
 			c.Error(err)
 		}
 		return c.JSON(http.StatusOK, upcoming_fights)
+	}
+}
+
+func (srv *server) GetFightResults() func(c echo.Context) error {
+	return func(c echo.Context) error {
+		fight_results, err := srv.db.GetFightResults()
+		if err != nil {
+			c.Error(err)
+		}
+		return c.JSON(http.StatusOK, fight_results)
 	}
 }
 
