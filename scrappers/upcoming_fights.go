@@ -27,13 +27,17 @@ func (sc scrapper) ScrapeUpcomingFights() {
 			fight_date = h.Find(_FightDateAlter).Text()
 		}
 
-		sc.db.InsertUpcomingFight(map[string]string{
+		err := sc.db.InsertUpcomingFight(map[string]string{
 			"fight_date":     fight_date,
 			"fighter_name_1": h.Find(_FighterName1).Text(),
 			"fighter_name_2": h.Find(_FighterName2).Text(),
 			"fight_info":     h.Find(_FightInfo).Text(),
 			"match_location": h.Find(_MatchLocation).Text(),
 		})
+
+		if err != nil {
+			fmt.Println(err)
+		}
 	})
 
 	fmt.Println(">>", selection)
