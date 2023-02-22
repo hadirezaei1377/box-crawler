@@ -16,6 +16,30 @@ func main() {
 		fmt.Println(err)
 	}
 
+	fightsCollection := client.Database("testing").Collection("fights")
+	fight := bson.D{{"fight-results", "results"}, {"upcoming-fights", "upcoming-fights"}}
+	result, err := fightsCollection.InsertOne(context.TODO(), fight)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(result.InsertedID)
+
+	fights := []interface{}{
+		bson.D{{"fullName", "User 2"}, {"age", 25}},
+		bson.D{{"fullName", "User 3"}, {"age", 20}},
+		bson.D{{"fullName", "User 4"}, {"age", 28}},
+	}
+
+	results, err := fightsCollection.InsertMany(context.TODO(), fights)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(results.InsertedIDs)
+
 	c := colly.NewCollector(
 		colly.AllowedDomains("box.live"),
 		colly.CacheDir("./box-live-cache"),
@@ -30,45 +54,51 @@ func main() {
 		fmt.Println("Crawl on page", r.URL.String())
 	})
 
+
+	// upcoming-fights-schedule
+	c.Visit("https://box.live/upcoming-fights-schedule")
+
+	
 	c.OnHTML("#this-week", func(container *colly.HTMLElement) {
 		container.ForEach("div", func(i int, h *colly.HTMLElement) {
-			FightDate := h.ChildText("h3.site-content__section__subtitle:nth-child()")
-			FighterName1 := h.ChildText("header:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(2) > span:nth-child(1)")
-			FighterName2 := h.ChildText("header:nth-child(1) > div:nth-child(3) > div:nth-child(3) > div:nth-child(1) > span:nth-child(2)")
-			FighterScore1 := h.ChildText("header:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(2)")
-			FighterScore2 := h.ChildText("header:nth-child(1) > div:nth-child(3) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1)")
-			FightInfo := h.ChildText("div.schedule-card:nth-child(7) > header:nth-child(1) > div:nth-child(5) > a:nth-child(1)")
-			MatchLocation := h.ChildText("div:nth-child(2) > p:nth-child(1)")
-			ScoreCards := h.ChildText("div:nth-child(2) > p:nth-child(2)")
-
-			db.InsertUpcomingFight(map[string]string{
-				"fihgt_date":   FightDate,
-				"fighter_name": FighterName1,
+			 
+            fmt.Println("FightDate:     ", h.ChildText("h3.site-content__section__subtitle:nth-child(اعداد فرد )"))
+			fmt.Println("FighterName1:  ", h.ChildText("header:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(2) > span:nth-child(1)"))
+            fmt.Println("FighterName2:  ", h.ChildText("header:nth-child(1) > div:nth-child(3) > div:nth-child(3) > div:nth-child(1) > span:nth-child(2)"))
+            fmt.Println("FightInfo:     ", h.ChildText("div.schedule-card:nth-child(7) > header:nth-child(1) > div:nth-child(5) > a:nth-child(1)"))
+            fmt.Println("MatchLocation: ", h.ChildText("div:nth-child(2) > p:nth-child(1)"))
+			
 			})
 		})
 
-	})
+		
 
-	c.Visit("https://box.live/upcoming-fights-schedule")
+		// fight result 
+		d.Visit("https://box.live/fight-results/")
+
+		d.OnHTMLc.OnHTML("#latest-results", func(container *colly.HTMLElement) {
+			container.ForEach("div", func(i int, h *colly.HTMLElement) {
+				 
+				fmt.Println("FightDate:     ", h.ChildText("?"))
+				fmt.Println("FighterName1:  ", h.ChildText("header:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(2) > span:nth-child(1)"))
+				fmt.Println("FighterName2:  ", h.ChildText("header:nth-child(1) > div:nth-child(3) > div:nth-child(3) > div:nth-child(1) > span:nth-child(2)"))
+				fmt.Println("FighterScore1:  ", h.ChildText("header:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(2)"))
+				fmt.Println("FighterScore2:  ", h.ChildText("header:nth-child(1) > div:nth-child(3) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1)"))
+				fmt.Println("FightInfo:     ", h.ChildText("div.schedule-card:nth-child(7) > header:nth-child(1) > div:nth-child(5) > a:nth-child(1)"))
+				fmt.Println("MatchLocation: ", h.ChildText("div:nth-child(2) > p:nth-child(1)"))
+				fmt.Println("ScoreCards:    ", h.ChildText("div:nth-child(2) > p:nth-child(2)"))
+			})
+		})
+		
+		
+
 
 	scheduler := gocron.NewScheduler(time.UTC)
 	scheduler.Every(3600).Second().Do(scrappers.ScrapeFightResults, db)
-}
 
-// c.OnHTML("upcoming-fights-schedule", "fight-results", func(e *colly.HTMLElement) {
-// 	metaTags := e.DOM.ParentsUntil("~").Find("meta")
-// 	metaTags.Each(func(_ int, s *goquery.Selection) {
-
-// 	})
-// })
-
-/*
-	c := colly.NewCollector(
-		colly.AllowedDomains("https://box.live/fight-results"),
-	)
-
-	scheduler := gocron.NewScheduler(time.UTC)
-	scheduler.Every(3600).Second().Do(scrappers.ScrapeFightResults, db)
+	func hello(c echo.Context) error {
+		return c.String(http.StatusOK, "Hello, World!")
+	  }
 
 	router := server.New(db)
 	router.RegisterRoutes()
@@ -76,9 +106,22 @@ func main() {
 		log.Fatal(err)
 	}
 
-	c.OnCSS(".mw-parser-output", func(e *colly.CSSElement) {
-		links := e.ChildAttrs("a", "href")
-		fmt.Println(links)
-	})
-	c.Visit("https://box.live/fight-results/Web_scraping")
-*/
+	fightsCollection := client.Database("testing").Collection("fights")
+	fight := bson.D{{"fight-results", "results"}, {"upcoming-fights", "upcoming-fights"}}
+	result, err := fightsCollection.InsertOne(context.TODO(), fight)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(result.InsertedID)
+
+	results, err := fightsCollection.InsertMany(context.TODO(), fights)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(results.InsertedIDs)
+
+}

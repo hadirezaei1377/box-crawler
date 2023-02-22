@@ -8,12 +8,6 @@
 
 	fmt.Println(result.InsertedID)
 
-	fights := []interface{}{
-		bson.D{{"fullName", "User 2"}, {"age", 25}},
-		bson.D{{"fullName", "User 3"}, {"age", 20}},
-		bson.D{{"fullName", "User 4"}, {"age", 28}},
-	}
-
 	results, err := fightsCollection.InsertMany(context.TODO(), fights)
 
 	if err != nil {
