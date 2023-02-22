@@ -1,7 +1,6 @@
 package database
 
 import (
-	"box-crawler/entities"
 	"context"
 	"time"
 
@@ -10,9 +9,10 @@ import (
 )
 
 type Database interface {
-	InsertUpcomingFight(entities.Fight)
+	InsertUpcomingFight(fight map[string]string)
 	GetUpcomingFights()
 	GetUpcomingFight()
+	UpsertFightResults(fight map[string]string)
 }
 
 type mongodb struct {
@@ -31,5 +31,6 @@ func New(dsn string) (*mongodb, error) {
 func (db mongodb) InsertUpcomingFight(fight map[string]string) {
 	db.db.Database("default_db").Collection("upcoming_fights").UpdateOne(context.TODO(), fight, options.Update().SetUpsert(true))
 }
-func (db mongodb) GetUpcomingFights() {}
-func (db mongodb) GetUpcomingFight()  {}
+func (db mongodb) GetUpcomingFights()                         {}
+func (db mongodb) GetUpcomingFight()                          {}
+func (db mongodb) UpsertFightResults(fight map[string]string) {}
