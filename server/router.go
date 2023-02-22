@@ -2,6 +2,7 @@ package server
 
 import (
 	"box-crawler/database"
+	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
@@ -19,12 +20,17 @@ func New(db database.Database) *server {
 }
 
 func (srv *server) RegisterRoutes() {
-	srv.echo.GET("", SampleHandler(srv.db))
+	srv.echo.GET("/upcoming_fights", srv.GetUpcomingFights())
+	srv.echo.GET("/upcoming_fights", srv.GetUpcomingFights())
 }
 
-func SampleHandler(db database.Database) func(c echo.Context) error {
+func (srv *server) GetUpcomingFights() func(c echo.Context) error {
 	return func(c echo.Context) error {
-		return nil
+		upcoming_fights, err := srv.db.GetUpcomingFights()
+		if err != nil {
+			c.Error(err)
+		}
+		return c.JSON(http.StatusOK, upcoming_fights)
 	}
 }
 
