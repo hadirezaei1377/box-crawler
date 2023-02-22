@@ -19,8 +19,8 @@ func main() {
 	scrapper := scrappers.New(db)
 
 	scheduler := gocron.NewScheduler(time.UTC)
-	scheduler.Every(2).Second().Do(scrapper.ScrapeUpcomingFights)
-	scheduler.Every(2).Second().Do(scrapper.ScrapeFightResults)
+	scheduler.Every(20000).Second().Do(scrapper.ScrapeUpcomingFights)
+	scheduler.Every(20000).Second().Do(scrapper.ScrapeFightResults)
 	scheduler.StartAsync()
 
 	router := server.New(db)
